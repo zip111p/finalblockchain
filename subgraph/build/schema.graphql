@@ -1,0 +1,103 @@
+type RWAToken @entity(immutable: false) {
+  id: ID!                      # proxy address
+  name: String!
+  symbol: String!
+  totalSupply: BigInt!
+  mints: [MintEvent!]! @derivedFrom(field: "token")
+  burns: [BurnEvent!]! @derivedFrom(field: "token")
+}
+
+type MintEvent @entity(immutable: true) {
+  id: ID!                      # txHash-logIndex
+  token: RWAToken!
+  to: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type BurnEvent @entity(immutable: true) {
+  id: ID!
+  token: RWAToken!
+  from: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type LendingPosition @entity(immutable: false) {
+  id: ID!                      # user address
+  collateral: BigInt!
+  debt: BigInt!
+  lastUpdated: BigInt!
+  borrows: [BorrowEvent!]! @derivedFrom(field: "position")
+  repays: [RepayEvent!]! @derivedFrom(field: "position")
+}
+
+type BorrowEvent @entity(immutable: true) {
+  id: ID!
+  position: LendingPosition!
+  amount: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type RepayEvent @entity(immutable: true) {
+  id: ID!
+  position: LendingPosition!
+  amount: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type LiquidationEvent @entity(immutable: true) {
+  id: ID!
+  borrower: Bytes!
+  liquidator: Bytes!
+  debtCovered: BigInt!
+  collateralSeized: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type Proposal @entity(immutable: false) {
+  id: ID!                      # proposalId
+  proposer: Bytes!
+  description: String!
+  state: String!               # Pending/Active/Succeeded/Defeated/Queued/Executed/Canceled
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+  startBlock: BigInt!
+  endBlock: BigInt!
+  executedAt: BigInt
+  canceledAt: BigInt
+  votes: [VoteEvent!]! @derivedFrom(field: "proposal")
+}
+
+type VoteEvent @entity(immutable: true) {
+  id: ID!
+  proposal: Proposal!
+  voter: Bytes!
+  support: Int!                # 0=Against, 1=For, 2=Abstain
+  weight: BigInt!
+  reason: String
+  timestamp: BigInt!
+}
+
+type Certificate @entity(immutable: false) {
+  id: ID!                      # tokenId
+  owner: Bytes!
+  assetId: String!
+  faceValue: BigInt!
+  issuedAt: BigInt!
+  active: Boolean!
+}
+
+type ProtocolStats @entity(immutable: false) {
+  id: ID!                      # "global"
+  totalRWAMinted: BigInt!
+  totalBorrowed: BigInt!
+  totalCertificates: BigInt!
+  lastUpdated: BigInt!
+}

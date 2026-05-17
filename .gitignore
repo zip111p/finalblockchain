@@ -1,0 +1,19 @@
+# Foundry build artifacts
+out/
+cache/
+
+# Coverage
+lcov.info
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

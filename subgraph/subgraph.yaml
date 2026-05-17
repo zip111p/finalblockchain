@@ -1,0 +1,112 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: RWAToken
+    network: arbitrum-sepolia
+    source:
+      address: "0x9e42552953ab57643bcfe9538e6a836efd6460c2"
+      abi: RWAToken
+      startBlock: 268854975
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RWAToken
+        - MintEvent
+        - BurnEvent
+        - ProtocolStats
+      abis:
+        - name: RWAToken
+          file: ./abis/RWAToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleRWATransfer
+      file: ./src/mappings.ts
+
+  - kind: ethereum/contract
+    name: LendingPool
+    network: arbitrum-sepolia
+    source:
+      address: "0x57592da359112b36ffe81d2398fd47c64a4c1bef"
+      abi: LendingPool
+      startBlock: 268855001
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LendingPosition
+        - BorrowEvent
+        - RepayEvent
+        - LiquidationEvent
+        - ProtocolStats
+      abis:
+        - name: LendingPool
+          file: ./abis/LendingPool.json
+      eventHandlers:
+        - event: CollateralDeposited(indexed address,uint256)
+          handler: handleCollateralDeposited
+        - event: Borrowed(indexed address,uint256)
+          handler: handleBorrowed
+        - event: Repaid(indexed address,uint256,uint256)
+          handler: handleRepaid
+        - event: Liquidated(indexed address,indexed address,uint256,uint256)
+          handler: handleLiquidated
+      file: ./src/mappings.ts
+
+  - kind: ethereum/contract
+    name: RWAGovernor
+    network: arbitrum-sepolia
+    source:
+      address: "0xc7fbe95018f1a8ab44ea82c18c5a7dc1cf8029ad"
+      abi: RWAGovernor
+      startBlock: 268854924
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Proposal
+        - VoteEvent
+      abis:
+        - name: RWAGovernor
+          file: ./abis/RWAGovernor.json
+      eventHandlers:
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: VoteCast(indexed address,uint256,uint8,uint256,string)
+          handler: handleVoteCast
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+      file: ./src/mappings.ts
+
+  - kind: ethereum/contract
+    name: RWACertificate
+    network: arbitrum-sepolia
+    source:
+      address: "0x039baa302696f9fb5eb5495f89dc479d09264404"
+      abi: RWACertificate
+      startBlock: 268854984
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Certificate
+        - ProtocolStats
+      abis:
+        - name: RWACertificate
+          file: ./abis/RWACertificate.json
+      eventHandlers:
+        - event: CertificateIssued(indexed uint256,indexed address,string,uint256)
+          handler: handleCertificateIssued
+        - event: CertificateRevoked(indexed uint256,string)
+          handler: handleCertificateRevoked
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleCertificateTransfer
+      file: ./src/mappings.ts

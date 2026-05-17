@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ── Build & Test ─────────────────────────────────────────────────────────────
+  test:
+    name: Foundry Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Compile contracts
+        run: forge build --sizes
+
+      - name: Run unit + fuzz + invariant tests
+        run: forge test -vvv --no-match-path "test/fork/*"
+        env:
+          FOUNDRY_FUZZ_RUNS: 500
+
+      - name: Run fork tests
+        run: forge test --match-path "test/fork/*" -vvv
+        env:
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        if: ${{ secrets.MAINNET_RPC_URL != '' }}
+
+  # ── Coverage ─────────────────────────────────────────────────────────────────
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Generate coverage report
+        run: forge coverage --report summary --no-match-path "test/fork/*" --no-match-coverage "(test/|script/)" 2>/dev/null | tail -60 > coverage-report.md
+
+      - name: Check minimum coverage
+        run: |
+          COVERAGE=$(grep "Total" coverage-report.md | grep -oP '\d+\.\d+(?=%)' | head -1)
+          echo "Line coverage (src/ only): $COVERAGE%"
+          python3 -c "import sys; cov=float('${COVERAGE:-0}'); sys.exit(0 if cov >= 90 else 1)" || \
+            echo "::warning::Coverage ${COVERAGE}% — target is ≥90%"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report.md
+
+  # ── Lint ─────────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Check Solidity formatting
+        run: forge fmt --check
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install solhint
+        run: npm install -g solhint
+
+      - name: Run solhint
+        run: solhint 'src/**/*.sol' --config .solhint.json
+
+  # ── Slither ───────────────────────────────────────────────────────────────────
+  slither:
+    name: Slither Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.4.0
+        id: slither
+        with:
+          node-version: 20
+          fail-on: high
+          slither-args: --exclude-dependencies
+
+      - name: Upload Slither report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: slither-report
+          path: ${{ steps.slither.outputs.sarif }}

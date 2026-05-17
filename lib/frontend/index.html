@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RWA Tokenization Platform</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>RWA Tokenization Platform</h1>
+    <div id="wallet-section">
+      <button id="btn-connect">Connect Wallet</button>
+      <span id="wallet-address" class="hidden"></span>
+      <span id="wrong-network" class="hidden warning">⚠ Wrong network — <a href="#" id="btn-switch-network">Switch to Arbitrum Sepolia</a></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Balances ── -->
+    <section id="section-balances">
+      <h2>Your Balances</h2>
+      <div class="card-grid">
+        <div class="card">
+          <span class="label">RWA Token</span>
+          <span id="rwa-balance" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Governance Power</span>
+          <span id="gov-votes" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Delegate</span>
+          <span id="gov-delegate" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Vault Shares</span>
+          <span id="vault-shares" class="value">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Pool State (from subgraph) ── -->
+    <section id="section-pool">
+      <h2>Protocol Stats <small>(via The Graph)</small></h2>
+      <div class="card-grid">
+        <div class="card">
+          <span class="label">Total RWA Minted</span>
+          <span id="total-minted" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Total Borrowed</span>
+          <span id="total-borrowed" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Total Certificates</span>
+          <span id="total-certs" class="value">—</span>
+        </div>
+      </div>
+      <div id="pool-error" class="error hidden"></div>
+    </section>
+
+    <!-- ── Vault Deposit ── -->
+    <section id="section-vault">
+      <h2>Vault — Deposit &amp; Withdraw</h2>
+      <div class="form-row">
+        <input id="input-deposit" type="number" placeholder="Amount to deposit" min="0" />
+        <button id="btn-deposit">Deposit</button>
+      </div>
+      <div class="form-row">
+        <input id="input-withdraw" type="number" placeholder="Shares to redeem" min="0" />
+        <button id="btn-redeem">Redeem</button>
+      </div>
+      <div id="vault-error" class="error hidden"></div>
+      <div id="vault-success" class="success hidden"></div>
+    </section>
+
+    <!-- ── Lending ── -->
+    <section id="section-lending">
+      <h2>Lending Pool</h2>
+      <div class="card-grid">
+        <div class="card">
+          <span class="label">Your Collateral</span>
+          <span id="loan-collateral" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Your Debt</span>
+          <span id="loan-debt" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Health Factor</span>
+          <span id="loan-health" class="value">—</span>
+        </div>
+        <div class="card">
+          <span class="label">Pool Liquidity</span>
+          <span id="pool-liquidity" class="value">—</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <input id="input-provide-liquidity" type="number" placeholder="Provide liquidity (USDC)" min="0" />
+        <button id="btn-provide-liquidity">Provide Liquidity</button>
+      </div>
+      <div class="form-row">
+        <input id="input-collateral" type="number" placeholder="Collateral amount (RWAT)" min="0" />
+        <button id="btn-deposit-collateral">Deposit Collateral</button>
+      </div>
+      <div class="form-row">
+        <input id="input-borrow" type="number" placeholder="Borrow amount (USDC)" min="0" />
+        <button id="btn-borrow">Borrow</button>
+      </div>
+      <div id="lending-error" class="error hidden"></div>
+      <div id="lending-success" class="success hidden"></div>
+    </section>
+
+    <!-- ── Governance ── -->
+    <section id="section-governance">
+      <h2>Governance Proposals</h2>
+      <div id="proposals-list">
+        <p>Loading proposals...</p>
+      </div>
+      <div id="gov-error" class="error hidden"></div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
