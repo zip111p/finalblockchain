@@ -2,6 +2,8 @@
 
 **Blockchain Technologies 2 — Final Project | Option C**
 
+**SE-2426 | Yelzhan Zhandos, Issa Akhmet**
+
 A production-grade decentralized protocol for tokenizing real-world assets (RWA) on-chain. Built on Arbitrum Sepolia with full DAO governance, ERC-4626 yield vault, RWA-collateralized lending, and Chainlink oracle integration.
 
 ---
